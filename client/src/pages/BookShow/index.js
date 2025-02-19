@@ -1,21 +1,23 @@
-import { message } from "antd";
-import moment from "moment";
-import React, { useEffect } from "react";
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate, useParams } from "react-router-dom";
+import { message } from "antd";
 import { GetShowById } from "../../apicalls/theatres";
-import { HideLoading, ShowLoading } from "../../redux/loadersSlice";
+import { HideLoading, ShowLoading } from "../../redux/loaderSlice";
 import StripeCheckout from "react-stripe-checkout";
-import Button from "../../components/Button";
-import { BookShowTickets, MakePayment } from "../../apicalls/bookings";
+import Button from "../../components/Button.js";
+import moment from "moment";
+import { MakePayment, BookShowTickets, getAllBookings } from "../../apicalls/bookings.js";
 
 function BookShow() {
   const { user } = useSelector((state) => state.users);
-  const [show, setShow] = React.useState(null);
-  const [selectedSeats, setSelectedSeats] = React.useState([]);
   const params = useParams();
-  const dispatch = useDispatch();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const [show, setShow] = useState({});
+  const [selectedSeats, setSelectedSeats] = useState([]);
+
+  const STRIPE_KEY = "pk_test_51PJ5bpSD3vWqMi4iu4GUgj6cPiZuIYUGwxVZMXG2mPt9keHD7PR3TleIwvEIyMrzfUfNEzSjOWFZKRswDSqdxkqo00QpbSoXgd";
 
   const getData = async () => {
     try {
@@ -37,53 +39,61 @@ function BookShow() {
 
   const getSeats = () => {
     const columns = 12;
-    const totalSeats = show.totalSeats;
-    const rows = Math.ceil(totalSeats / columns);
+    const totalSeats = show.totalSeats; // 120
+    const rows = Math.ceil(totalSeats / columns); // 10
 
     return (
-      <div className="flex gap-1 flex-col p-2 card">
-        {Array.from(Array(rows).keys()).map((seat, index) => {
-          return (
-            <div className="flex gap-1 justify-center">
-              {Array.from(Array(columns).keys()).map((column, index) => {
-                const seatNumber = seat * columns + column + 1;
-                let seatClass = "seat";
+      <div>
+        <p className="m-4">Screen This Side</p>
+        <hr />
+        <div className="flex gap-1 flex-col p-2 card">
+          <hr />
+          {Array.from(Array(rows).keys()).map((seat, index) => {
+            return (
+              <div className="flex gap-1 justify-center" key={`${seat * columns + 1}_${index}`}>
+                {Array.from(Array(columns).keys()).map((column, index) => {
+                  const seatNumber = seat * columns + column + 1;
+                  let seatClass = "seat";
 
-                if (selectedSeats.includes(seat * columns + column + 1)) {
-                  seatClass = seatClass + " selected-seat";
-                }
+                  if (selectedSeats.includes(seatNumber)) {
+                    seatClass = seatClass + " selected-seat";
+                  }
 
-                if (show.bookedSeats.includes(seat * columns + column + 1)) {
-                  seatClass = seatClass + " booked-seat";
-                }
+                  if (show.bookedSeats.includes(seatNumber)) {
+                    seatClass = seatClass + " booked-seat";
+                  }
 
-                return (
-                  seat * columns + column + 1 <= totalSeats && (
-                    <div
-                      className={seatClass}
-                      onClick={() => {
-                        if (selectedSeats.includes(seatNumber)) {
-                          setSelectedSeats(
-                            selectedSeats.filter((item) => item !== seatNumber)
-                          );
-                        } else {
-                          setSelectedSeats([...selectedSeats, seatNumber]);
-                        }
-                      }}
-                    >
-                      <h1 className="text-sm">{seat * columns + column + 1}</h1>
-                    </div>
-                  )
-                );
-              })}
-            </div>
-          );
-        })}
+                  return (
+                    seatNumber <= totalSeats && (
+                      <div
+                        key={index}
+                        className={seatClass}
+                        onClick={() => {
+                          if (selectedSeats.includes(seatNumber)) {
+                            setSelectedSeats(
+                              selectedSeats.filter(
+                                (item) => item !== seatNumber
+                              )
+                            );
+                          } else {
+                            setSelectedSeats([...selectedSeats, seatNumber]);
+                          }
+                        }}
+                      >
+                        <h1 className="text-sm">{seatNumber}</h1>
+                      </div>
+                    )
+                  );
+                })}
+              </div>
+            );
+          })}
+        </div>
       </div>
     );
   };
 
-  const book = async (transactionId) => {
+  const book = async (transactionId = "") => {
     try {
       dispatch(ShowLoading());
       const response = await BookShowTickets({
@@ -94,6 +104,7 @@ function BookShow() {
       });
       if (response.success) {
         message.success(response.message);
+        await getAllBookings();
         navigate("/profile");
       } else {
         message.error(response.message);
@@ -104,6 +115,7 @@ function BookShow() {
       dispatch(HideLoading());
     }
   };
+ 
 
   const onToken = async (token) => {
     try {
@@ -112,7 +124,7 @@ function BookShow() {
         token,
         selectedSeats.length * show.ticketPrice * 100
       );
-      if (response.success) {
+      if (response.success) { 
         message.success(response.message);
         book(response.data);
       } else {
@@ -125,11 +137,16 @@ function BookShow() {
     }
   };
 
+  // const onToken = (token) => {
+  //   console.log(token);
+  // }
+
   useEffect(() => {
     getData();
   }, []);
+
   return (
-    show && (
+    show?.movie?.title && (
       <div>
         {/* show infomation */}
 
@@ -161,20 +178,23 @@ function BookShow() {
           <div className="mt-2 flex justify-center gap-2 items-center flex-col">
             <div className="flex justify-center">
               <div className="flex uppercase card p-2 gap-3">
-                <h1 className="text-sm"><b>Selected Seats</b> : {selectedSeats.join(" , ")}</h1>
+                <h1 className="text-sm">
+                  <b>Selected Seats</b> : {selectedSeats.join(" , ")}
+                </h1>
 
                 <h1 className="text-sm">
-                  <b>Total Price</b> : {selectedSeats.length * show.ticketPrice}
+                  <b>Total Price</b> : USD{" "}
+                  {Math.ceil((selectedSeats.length * show.ticketPrice) / 84)}
                 </h1>
               </div>
             </div>
             <StripeCheckout
-              token={onToken}
-              amount={selectedSeats.length * show.ticketPrice * 100}
               billingAddress
-              stripeKey="pk_test_51IYnC0SIR2AbPxU0TMStZwFUoaDZle9yXVygpVIzg36LdpO8aSG8B9j2C0AikiQw2YyCI8n4faFYQI5uG3Nk5EGQ00lCfjXYvZ"
+              token={onToken}
+              stripeKey={STRIPE_KEY}
+              amount={selectedSeats.length * show.ticketPrice * 100}
             >
-              <Button title="Book Now" />
+            <Button title="Pay to book"/>
             </StripeCheckout>
           </div>
         )}

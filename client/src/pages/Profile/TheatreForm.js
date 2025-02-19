@@ -1,15 +1,13 @@
 import { Form, message, Modal } from "antd";
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { AddTheatre, UpdateTheatre } from "../../apicalls/theatres";
-import Button from "../../components/Button";
-import { HideLoading, ShowLoading } from "../../redux/loadersSlice";
+import { AddTheatre , UpdateTheatre} from "../../apicalls/theatres";
+import Button from "../../components/Button.js";
+import { HideLoading, ShowLoading } from "../../redux/loaderSlice";
 
 function TheatreForm({
-  showTheatreFormModal,
   setShowTheatreFormModal,
   formType,
-  setFormType,
   selectedTheatre,
   setSelectedTheatre,
   getData,
@@ -47,7 +45,7 @@ function TheatreForm({
   return (
     <Modal
       title={formType === "add" ? "Add Theatre" : "Edit Theatre"}
-      open={showTheatreFormModal}
+      open={true}
       onCancel={() => {
         setShowTheatreFormModal(false);
         setSelectedTheatre(null);
@@ -90,7 +88,7 @@ function TheatreForm({
           name="email"
           rules={[{ required: true, message: "Please input theatre email!" }]}
         >
-          <input type="text" />
+          <input type="email" />
         </Form.Item>
         <div className="flex justify-end gap-1">
           <Button

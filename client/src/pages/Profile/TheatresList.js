@@ -1,29 +1,22 @@
 import React, { useEffect, useState } from "react";
-import Button from "../../components/Button";
-import { useNavigate } from "react-router-dom";
-import TheatreForm from "./TheatreForm";
-import {
-  DeleteTheatre,
-  GetAllTheatres,
-  GetAllTheatresByOwner,
-} from "../../apicalls/theatres";
+import Button from "../../components/Button.js";
 import { useDispatch, useSelector } from "react-redux";
-import { HideLoading, ShowLoading } from "../../redux/loadersSlice";
+import { HideLoading, ShowLoading } from "../../redux/loaderSlice.js";
 import { message, Table } from "antd";
-import Shows from "./Shows";
+import TheatreForm from "./TheatreForm.js";
+import { DeleteTheatre, GetAllTheatresByOwner } from "../../apicalls/theatres";
+import Shows from "./Show.js";
 
 function TheatresList() {
   const { user } = useSelector((state) => state.users);
   const [showTheatreFormModal = false, setShowTheatreFormModal] =
     useState(false);
-  const [selectedTheatre = null, setSelectedTheatre] = useState(null);
-  const [formType = "add", setFormType] = useState("add");
-  const [theatres = [], setTheatres] = useState([]);
-
-  const [openShowsModal = false, setOpenShowsModal] = useState(false);
+  const [selectedTheatre, setSelectedTheatre] = useState(null);
+  const [formType, setFormType] = useState("add");
+  const [theatres, setTheatres] = useState([]);
+  const [openShowsModal, setOpenShowsModal] = useState(false);
 
   const dispatch = useDispatch();
-  const navigate = useNavigate();
 
   const getData = async () => {
     try {
@@ -43,10 +36,10 @@ function TheatresList() {
     }
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (theatreId) => {
     try {
       dispatch(ShowLoading());
-      const response = await DeleteTheatre({ theatreId: id });
+      const response = await DeleteTheatre(theatreId);
       if (response.success) {
         message.success(response.message);
         getData();
@@ -80,8 +73,8 @@ function TheatresList() {
     {
       title: "Status",
       dataIndex: "isActive",
-      render: (text, record) => {
-        if (text) {
+      render: (isActive) => {
+        if (isActive) {
           return "Approved";
         } else {
           return "Pending / Blocked";
@@ -91,29 +84,29 @@ function TheatresList() {
     {
       title: "Action",
       dataIndex: "action",
-      render: (text, record) => {
+      render: (_, rowData) => {
         return (
           <div className="flex gap-1 items-center">
             <i
               className="ri-delete-bin-line"
               onClick={() => {
-                handleDelete(record._id);
+                handleDelete(rowData._id);
               }}
             ></i>
             <i
               className="ri-pencil-line"
               onClick={() => {
                 setFormType("edit");
-                setSelectedTheatre(record);
+                setSelectedTheatre(rowData);
                 setShowTheatreFormModal(true);
               }}
             ></i>
 
-            {record.isActive && (
+            {rowData.isActive && (
               <span
                 className="underline"
                 onClick={() => {
-                  setSelectedTheatre(record);
+                  setSelectedTheatre(rowData);
                   setOpenShowsModal(true);
                 }}
               >
@@ -128,7 +121,9 @@ function TheatresList() {
 
   useEffect(() => {
     getData();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
   return (
     <div>
       <div className="flex justify-end mb-1">
@@ -146,10 +141,8 @@ function TheatresList() {
 
       {showTheatreFormModal && (
         <TheatreForm
-          showTheatreFormModal={showTheatreFormModal}
           setShowTheatreFormModal={setShowTheatreFormModal}
           formType={formType}
-          setFormType={setFormType}
           selectedTheatre={selectedTheatre}
           setSelectedTheatre={setSelectedTheatre}
           getData={getData}
@@ -158,7 +151,6 @@ function TheatresList() {
 
       {openShowsModal && (
         <Shows
-          openShowsModal={openShowsModal}
           setOpenShowsModal={setOpenShowsModal}
           theatre={selectedTheatre}
         />

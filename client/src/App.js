@@ -1,18 +1,23 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Home from "./pages/Home";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import "./stylesheets/alignments.css";
-import "./stylesheets/sizes.css";
-import "./stylesheets/form-elements.css";
-import "./stylesheets/custom.css";
-import "./stylesheets/theme.css";
-import ProtectedRoute from "./components/ProtectedRoute";
 import { useSelector } from "react-redux";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+
+//Pages
+import Home from "./pages/Home";
 import Profile from "./pages/Profile";
 import Admin from "./pages/Admin";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
 import TheatresForMovie from "./pages/TheatresForMovie";
 import BookShow from "./pages/BookShow";
+
+// Styles
+import "./stylesheets/alignments.css";
+import "./stylesheets/custom.css";
+import "./stylesheets/form-elements.css";
+import "./stylesheets/sizes.css";
+import "./stylesheets/theme.css";
+
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   const { loading } = useSelector((state) => state.loaders);
@@ -23,7 +28,7 @@ function App() {
           <div className="loader"></div>
         </div>
       )}
-      <BrowserRouter>
+      <Router>
         <Routes>
           <Route
             path="/"
@@ -34,18 +39,10 @@ function App() {
             }
           />
           <Route
-            path="/movie/:id"
+            path="/admin"
             element={
               <ProtectedRoute>
-                <TheatresForMovie />
-              </ProtectedRoute>
-            }
-          />
-           <Route
-            path="/book-show/:id"
-            element={
-              <ProtectedRoute>
-                <BookShow />
+                <Admin />
               </ProtectedRoute>
             }
           />
@@ -58,17 +55,25 @@ function App() {
             }
           />
           <Route
-            path="/admin"
+            path="/movie/:id"
             element={
               <ProtectedRoute>
-                <Admin />
-              </ProtectedRoute>
+                <TheatresForMovie />
+               </ProtectedRoute>
             }
           />
+          <Route
+            path="/book-show/:id"
+            element={
+              <ProtectedRoute>
+                <BookShow />
+               </ProtectedRoute>
+            }
+          />  
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
         </Routes>
-      </BrowserRouter>
+      </Router>
     </div>
   );
 }

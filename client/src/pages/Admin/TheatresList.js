@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { GetAllTheatres, UpdateTheatre } from "../../apicalls/theatres";
-import { useDispatch, useSelector } from "react-redux";
-import { HideLoading, ShowLoading } from "../../redux/loadersSlice";
+import { useDispatch } from "react-redux";
+import { HideLoading, ShowLoading } from "../../redux/loaderSlice";
 import { message, Table } from "antd";
 
 function TheatresList() {
-  const [theatres = [], setTheatres] = useState([]);
+  const [theatres, setTheatres] = useState([]);
   const dispatch = useDispatch();
 
   const getData = async () => {
@@ -65,15 +65,16 @@ function TheatresList() {
     {
       title: "Owner",
       dataIndex: "owner",
-      render: (text, record) => {
-        return record.owner.name;
+      render: (owner, rowData) => {
+        console.log("===>", rowData);
+        return owner.name;
       },
     },
     {
       title: "Status",
       dataIndex: "isActive",
-      render: (text, record) => {
-        if (text) {
+      render: (isActive) => {
+        if (isActive) {
           return "Approved";
         } else {
           return "Pending / Blocked";
@@ -83,25 +84,15 @@ function TheatresList() {
     {
       title: "Action",
       dataIndex: "action",
-      render: (text, record) => {
+      render: (_, rowData) => {
         return (
           <div className="flex gap-1">
-            {record.isActive && (
-              <span
-                className="underline"
-                onClick={() => handleStatusChange(record)}
-              >
-                Block
-              </span>
-            )}
-            {!record.isActive && (
-              <span
-                className="underline"
-                onClick={() => handleStatusChange(record)}
-              >
-                Approve
-              </span>
-            )}
+            <span
+              className="underline"
+              onClick={() => handleStatusChange(rowData)}
+            >
+              {rowData.isActive ? "Block" : "Approve"}
+            </span>
           </div>
         );
       },

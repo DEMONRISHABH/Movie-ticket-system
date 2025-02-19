@@ -1,129 +1,114 @@
 import { axiosInstance } from ".";
 
-// Add a new theatre
 export const AddTheatre = async (payload) => {
   try {
     const response = await axiosInstance.post(
-      "/api/theatres/add-theatre",
+      "/api/theatre/add-theatre",
       payload
     );
     return response.data;
-  } catch (error) {
-    return error.response;
+  } catch (err) {
+    return err;
   }
 };
 
-// get all theatres
 export const GetAllTheatres = async () => {
   try {
-    const response = await axiosInstance.get("/api/theatres/get-all-theatres");
+    const response = await axiosInstance.get("/api/theatre/get-all-theatres");
     return response.data;
-  } catch (error) {
-    return error.response;
+  } catch (err) {
+    return err;
   }
 };
 
-// get all theatres by owner
-export const GetAllTheatresByOwner = async (payload) => {
+export const GetAllTheatresByOwner = async () => {
   try {
-    const response = await axiosInstance.post(
-      "/api/theatres/get-all-theatres-by-owner",
-      payload
+    const response = await axiosInstance.get(
+      "/api/theatre/get-all-theatres-by-owner"
     );
     return response.data;
-  } catch (error) {
-    return error.response;
+  } catch (err) {
+    return err;
   }
 };
 
-// update theatre
 export const UpdateTheatre = async (payload) => {
   try {
-    const response = await axiosInstance.post(
-      "/api/theatres/update-theatre",
+    const response = await axiosInstance.put(
+      "/api/theatre/update-theatre",
       payload
     );
     return response.data;
-  } catch (error) {
-    return error.response;
+  } catch (err) {
+    return err;
   }
 };
 
-// delete theatre
-export const DeleteTheatre = async (payload) => {
+export const DeleteTheatre = async (theatreId) => {
   try {
-    const response = await axiosInstance.post(
-      "/api/theatres/delete-theatre",
-      payload
+    const response = await axiosInstance.delete(
+      `/api/theatre/delete-theatre?theatreId=${theatreId}`
     );
     return response.data;
-  } catch (error) {
-    return error.response;
+  } catch (err) {
+    return err;
   }
 };
 
-// add show
+// Shows APIs
 export const AddShow = async (payload) => {
   try {
-    const response = await axiosInstance.post(
-      "/api/theatres/add-show",
-      payload
-    );
+    const response = await axiosInstance.post("/api/theatre/add-show", payload);
     return response.data;
-  } catch (error) {
-    return error.response;
+  } catch (err) {
+    return err;
   }
 };
 
-// get all shows
 export const GetAllShowsByTheatre = async (payload) => {
   try {
     const response = await axiosInstance.post(
-      "/api/theatres/get-all-shows-by-theatre",
+      "/api/theatre/get-all-shows-by-theatre",
       payload
     );
     return response.data;
-  } catch (error) {
-    return error.response;
+  } catch (err) {
+    return err;
   }
 };
 
-// delete show
-export const DeleteShow = async (payload) => {
+export const DeleteShow = async (showId) => {
   try {
-    const response = await axiosInstance.post(
-      "/api/theatres/delete-show",
-      payload
+    const response = await axiosInstance.delete(
+      `/api/theatre/delete-show?showId=${showId}`
     );
     return response.data;
-  } catch (error) {
-    return error.response;
+  } catch (err) {
+    return err;
   }
 };
 
-// get all theatres for a movie
 export const GetAllTheatresByMovie = async (payload) => {
   try {
     const response = await axiosInstance.post(
-      "/api/theatres/get-all-theatres-by-movie",
+      "/api/theatre/get-all-theatres-by-movie",
       payload
     );
     return response.data;
-  } catch (error) {
-    return error.response;
+  } catch (err) {
+    return err.response;
   }
 };
 
-
-// get show by id
 export const GetShowById = async (payload) => {
   try {
     const response = await axiosInstance.post(
-      "/api/theatres/get-show-by-id",
+      "/api/theatre/get-show-by-id",
       payload
     );
     return response.data;
-  } catch (error) {
-    return error.response;
+  } catch (err) {
+    return err.response;
   }
-}
+};
+

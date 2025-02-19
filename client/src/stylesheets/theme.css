@@ -1,5 +1,5 @@
 :root {
-    --colour-primary: #002E2A;
+    --colour-primary: lightblue;
     --colour-secondary: #e6b412;
 }
 
@@ -50,4 +50,3 @@
 .border-secondary {
     border-color: var(--colour-secondary);
 }
-

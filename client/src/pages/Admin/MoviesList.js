@@ -1,10 +1,10 @@
 import React, { useEffect } from "react";
-import Button from "../../components/Button";
+import Button from "../../components/Button.js";
 import MovieForm from "./MovieForm";
 import moment from "moment";
 import { message, Table } from "antd";
 import { useDispatch } from "react-redux";
-import { HideLoading, ShowLoading } from "../../redux/loadersSlice";
+import { HideLoading, ShowLoading } from "../../redux/loaderSlice";
 import { DeleteMovie, GetAllMovies } from "../../apicalls/movies";
 
 function MoviesList() {
@@ -32,9 +32,7 @@ function MoviesList() {
   const handleDelete = async (movieId) => {
     try {
       dispatch(ShowLoading());
-      const response = await DeleteMovie({
-        movieId,
-      });
+      const response = await DeleteMovie(movieId);
       if (response.success) {
         message.success(response.message);
         getData();
@@ -52,10 +50,11 @@ function MoviesList() {
     {
       title: "Poster",
       dataIndex: "poster",
-      render: (text, record) => {
+      render: (posterLink) => {
+        // All your data manipulations.
         return (
           <img
-            src={record.poster}
+            src={posterLink}
             alt="poster"
             height="60"
             width="80"
@@ -120,6 +119,7 @@ function MoviesList() {
 
   useEffect(() => {
     getData();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -139,8 +139,7 @@ function MoviesList() {
 
       {showMovieFormModal && (
         <MovieForm
-          showMovieFormModal={showMovieFormModal}
-          setShowMovieFormModal={setShowMovieFormModal}
+          onClose={() => setShowMovieFormModal(false)}
           selectedMovie={selectedMovie}
           setSelectedMovie={setSelectedMovie}
           formType={formType}

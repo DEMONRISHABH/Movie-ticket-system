@@ -1,12 +1,15 @@
-const jwt = require("jsonwebtoken");
+const jwt = require('jsonwebtoken');
 
-module.exports = function (req, res, next) {
-  try {
-    const token = req.headers.authorization.split(" ")[1];
-    const decoded = jwt.verify(token, process.env.jwt_secret);
-    req.body.userId = decoded.userId;
-    next();
-  } catch (error) {
-    res.status(401).send({ success: false, message: "Invalid token" });
-  }
-};
+module.exports = function(req, res, next) {
+    try {
+        const token = req.headers.authorization.split(" ")[1];
+        const decodedToken = jwt.verify(token, process.env.jwt_secret);
+        req.body.userId = decodedToken.userId;
+        next();
+    } catch(err) {
+        res.status(401).send({
+            success: false,
+            message: "Invalid token",
+        })
+    }
+}   

@@ -1,21 +1,18 @@
 import { Col, Form, Modal, Row, Table, message } from "antd";
-import React, { useEffect } from "react";
-import Button from "../../../components/Button";
-import { GetAllMovies } from "../../../apicalls/movies";
-import { useDispatch } from "react-redux";
-import { HideLoading, ShowLoading } from "../../../redux/loadersSlice";
-import {
-  AddShow,
-  DeleteShow,
-  GetAllShowsByTheatre,
-} from "../../../apicalls/theatres";
+import React, { useEffect, useState } from "react";
+import Button from "../../components/Button.js";
 import moment from "moment";
+import { HideLoading, ShowLoading } from "../../redux/loaderSlice.js";
+import { AddShow , DeleteShow, GetAllShowsByTheatre} from "../../apicalls/theatres";
+import { GetAllMovies } from "../../apicalls/movies";
+import { useDispatch } from "react-redux";
 
-function Shows({ openShowsModal, setOpenShowsModal, theatre }) {
-  const [view, setView] = React.useState("table");
-  const [shows, setShows] = React.useState([]);
-  const [movies, setMovies] = React.useState([]);
+function Shows({ setOpenShowsModal, theatre }) {
   const dispatch = useDispatch();
+
+  const [view, setView] = useState("table");
+  const [shows, setShows] = useState([]);
+  const [movies, setMovies] = useState([]);
 
   const getData = async () => {
     try {
@@ -28,7 +25,7 @@ function Shows({ openShowsModal, setOpenShowsModal, theatre }) {
       }
 
       const showsResponse = await GetAllShowsByTheatre({
-        theatreId: theatre._id,
+        theatreId: theatre._id
       });
       if (showsResponse.success) {
         setShows(showsResponse.data);
@@ -36,28 +33,27 @@ function Shows({ openShowsModal, setOpenShowsModal, theatre }) {
         message.error(showsResponse.message);
       }
       dispatch(HideLoading());
-    } catch (error) {
-      message.error(error.message);
+    } catch(err) {
+      message.error(err.message);
       dispatch(HideLoading());
     }
   };
 
-  const handleAddShow = async (values) => {
+  const handleAddShow = async (showData) => {
     try {
       dispatch(ShowLoading());
       const response = await AddShow({
-        ...values,
-        theatre: theatre._id,
+        ...showData,
+        theatre: theatre._id
       });
+
       if (response.success) {
         message.success(response.message);
         getData();
         setView("table");
-      } else {
-        message.error(response.message);
       }
       dispatch(HideLoading());
-    } catch (error) {
+    } catch(error) {
       message.error(error.message);
       dispatch(HideLoading());
     }
@@ -66,7 +62,7 @@ function Shows({ openShowsModal, setOpenShowsModal, theatre }) {
   const handleDelete = async (id) => {
     try {
       dispatch(ShowLoading());
-      const response = await DeleteShow({ showId: id });
+      const response = await DeleteShow(id);
 
       if (response.success) {
         message.success(response.message);
@@ -89,8 +85,8 @@ function Shows({ openShowsModal, setOpenShowsModal, theatre }) {
     {
       title: "Date",
       dataIndex: "date",
-      render: (text, record) => {
-        return moment(text).format("MMM Do YYYY");
+      render: (date) => {
+        return moment(date).format("MMM Do YYYY");
       },
     },
     {
@@ -100,8 +96,8 @@ function Shows({ openShowsModal, setOpenShowsModal, theatre }) {
     {
       title: "Movie",
       dataIndex: "movie",
-      render: (text, record) => {
-        return record.movie.title;
+      render: (_, rowData) => {
+        return rowData.movie.title;
       },
     },
     {
@@ -115,21 +111,21 @@ function Shows({ openShowsModal, setOpenShowsModal, theatre }) {
     {
       title: "Available Seats",
       dataIndex: "availableSeats",
-      render: (text, record) => {
-        return record.totalSeats - record.bookedSeats.length;
+      render: (_, rowData) => {
+        return rowData.totalSeats - rowData.bookedSeats.length;
       },
     },
     {
       title: "Action",
       dataIndex: "action",
-      render: (text, record) => {
+      render: (_, rowData) => {
         return (
           <div className="flex gap-1 items-center">
-            {record.bookedSeats.length === 0 && (
+            {rowData.bookedSeats.length === 0 && (
               <i
                 className="ri-delete-bin-line"
                 onClick={() => {
-                  handleDelete(record._id);
+                  handleDelete(rowData._id);
                 }}
               ></i>
             )}
@@ -145,17 +141,13 @@ function Shows({ openShowsModal, setOpenShowsModal, theatre }) {
 
   return (
     <Modal
-      title=""
-      open={openShowsModal}
+      open
       onCancel={() => setOpenShowsModal(false)}
       width={1400}
       footer={null}
     >
-      <h1 className="text-primary text-md uppercase mb-1">
-        Theatre : {theatre.name}
-      </h1>
+      <h1 className="text-md uppercase mb-1">Theatre: {theatre.name}</h1>
       <hr />
-
       <div className="flex justify-between mt-1 mb-1 items-center">
         <h1 className="text-md uppercase">
           {view === "table" ? "Shows" : "Add Show"}
@@ -191,10 +183,7 @@ function Shows({ openShowsModal, setOpenShowsModal, theatre }) {
                 name="date"
                 rules={[{ required: true, message: "Please input show date!" }]}
               >
-                <input
-                  type="date"
-                  min={new Date().toISOString().split("T")[0]}
-                />
+                <input type="date" min={new Date()} />
               </Form.Item>
             </Col>
 

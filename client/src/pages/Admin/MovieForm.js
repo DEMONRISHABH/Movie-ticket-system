@@ -1,14 +1,13 @@
 import React from "react";
 import { Col, Form, message, Modal, Row } from "antd";
-import Button from "../../components/Button";
+import Button from "../../components/Button.js";
 import { useDispatch } from "react-redux";
-import { HideLoading, ShowLoading } from "../../redux/loadersSlice";
+import { HideLoading, ShowLoading } from "../../redux/loaderSlice";
 import { AddMovie, UpdateMovie } from "../../apicalls/movies";
 import moment from "moment";
 
 function MovieForm({
-  showMovieFormModal,
-  setShowMovieFormModal,
+  onClose,
   selectedMovie,
   setSelectedMovie,
   getData,
@@ -38,7 +37,8 @@ function MovieForm({
       if (response.success) {
         getData();
         message.success(response.message);
-        setShowMovieFormModal(false);
+        onClose();
+        setSelectedMovie(null);
       } else {
         message.error(response.message);
       }
@@ -52,15 +52,15 @@ function MovieForm({
   return (
     <Modal
       title={formType === "add" ? "ADD MOVIE" : "EDIT MOVIE"}
-      open={showMovieFormModal}
+      open={true}
       onCancel={() => {
-        setShowMovieFormModal(false);
+        onClose();
         setSelectedMovie(null);
       }}
       footer={null}
       width={800}
     >
-      <Form layout="vertical" onFinish={onFinish} initialValues={selectedMovie}>
+      <Form layout="vertical" initialValues={selectedMovie} onFinish={onFinish}>
         <Row gutter={16}>
           <Col span={24}>
             <Form.Item label="Movie Name" name="title">
@@ -76,7 +76,7 @@ function MovieForm({
 
           <Col span={8}>
             <Form.Item label="Movie Duration (Min)" name="duration">
-              <input type="number" />
+              <input type="text" />
             </Form.Item>
           </Col>
 
@@ -84,10 +84,10 @@ function MovieForm({
             <Form.Item label="Language" name="language">
               <select name="" id="">
                 <option value="">Select Language</option>
-                <option value="Telugu">Telugu</option>
                 <option value="English">English</option>
                 <option value="Hindi">Hindi</option>
-                <option value="Tamil">Tamil</option>
+                <option value="Kannada">Kannada</option>
+                <option value="Telugu">Telugu</option>
               </select>
             </Form.Item>
           </Col>
@@ -122,7 +122,7 @@ function MovieForm({
             variant="outlined"
             type="button"
             onClick={() => {
-              setShowMovieFormModal(false);
+              onClose();
               setSelectedMovie(null);
             }}
           />

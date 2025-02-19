@@ -1,29 +1,25 @@
-import React, { useEffect } from "react";
-import { Form, message } from "antd";
+import React,{useEffect} from "react";
 import Button from "../../components/Button";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from 'react-router-dom';
+import { Form, message } from 'antd';
 import { RegisterUser } from "../../apicalls/users";
-import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { HideLoading, ShowLoading } from "../../redux/loadersSlice";
 
-function Register() {
-  const dispatch = useDispatch();
+const Register = () => {
   const navigate = useNavigate();
+
   const onFinish = async (values) => {
     try {
-      dispatch(ShowLoading());
       const response = await RegisterUser(values);
-      dispatch(HideLoading());
       if (response.success) {
         message.success(response.message);
         navigate("/login");
+        console.log(response.message);
       } else {
         message.error(response.message);
+        console.error(response.message);
       }
     } catch (error) {
-      dispatch(HideLoading());
-      message.error(error.message);
+      message.error(error);
     }
   };
 
@@ -36,9 +32,11 @@ function Register() {
   return (
     <div className="flex justify-center h-screen items-center bg-primary">
       <div className="card p-3 w-400">
-        <h1 className="text-xl mb-1">SHEYMOVIES - REGISTER</h1>
+        <h1 className="text-xl mb-1">
+          Welcome to Shows! Please Register
+        </h1>
         <hr />
-        <Form layout="vertical" className="mt-1" onFinish={onFinish}>
+        <Form layout="vertical" className="mt-1" onFinish = {onFinish}>
           <Form.Item
             label="Name"
             name="name"
@@ -72,6 +70,6 @@ function Register() {
       </div>
     </div>
   );
-}
+};
 
 export default Register;
